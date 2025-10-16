@@ -1,14 +1,43 @@
-# 📦 Products API Test
+# 🧪 products-api-test
 
-Este es un proyecto de prueba que implementa una **API RESTful** para la gestión de productos. Se desarrolló con el objetivo de demostrar buenas prácticas en el diseño de APIs, la **separación de responsabilidades** (MVC o similar) y la **integración con documentación Swagger**.
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
+![Sequelize](https://img.shields.io/badge/Sequelize-52B0E7?style=for-the-badge&logo=sequelize&logoColor=white)
+![Swagger](https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)
 
-## 🚀 Empezando
+---
 
-Sigue estos pasos para obtener una copia local del proyecto en funcionamiento.
+Laboratorio backend diseñado para **explorar y dominar** el ciclo completo de vida de una **API RESTful** centrada en la gestión de productos.
 
-***
+Este proyecto se enfoca en las siguientes buenas prácticas:
+* **Diseño de Endpoints:** Definición clara de rutas siguiendo principios REST.
+* **Modelado y ORM:** Uso de **Sequelize** para la gestión robusta de la base de datos.
+* **Pruebas (TDD/Unitarias):** Implementación de tests con **Jest** y **Supertest**.
+* **Documentación Interactiva:** Generación automática de documentación con **Swagger**.
 
-### ⚙️ Prerrequisitos
+## 🎯 Objetivo del Proyecto
+
+Este repositorio actúa como un **entorno de práctica** y *sandbox* (caja de arena) para entender el flujo de trabajo de una API. No está pensado para producción, sino como espacio de aprendizaje y experimentación para:
+
+1.  Modelado de datos y relaciones.
+2.  Implementación de validaciones y lógica de negocio.
+3.  Desarrollo de pruebas unitarias y de integración.
+4.  Generación de documentación técnica accesible.
+
+---
+
+## 🚀 Tecnologías Clave
+
+| Tecnología | Descripción |
+| :--- | :--- |
+| **Express** | Framework fundamental para construir el servidor y definir las rutas de la API. |
+| **Sequelize** | ORM (Object-Relational Mapper) utilizado para modelar, interactuar y gestionar la base de datos. |
+| **Jest + Supertest** | Herramientas esenciales para la creación y ejecución de pruebas unitarias y de integración de endpoints. |
+| **Swagger** | Herramienta para generar documentación interactiva y visual de todos los *endpoints* disponibles. |
+
+---
+
+## ⚙️ Prerrequisitos
 
 Asegúrate de tener instalado lo siguiente en tu sistema:
 
