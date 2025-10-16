@@ -115,8 +115,10 @@ Si deseas ejecutar el proyecto localmente, debes:
 
 ***
 
-## Presencia en linea
-    *https://www.linkedin.com/in/ivercruzdev/*
+## 🌐 Presencia en línea
+
+Conecta conmigo en [LinkedIn](https://www.linkedin.com/in/ivercruzdev/)
+
 
    
    
