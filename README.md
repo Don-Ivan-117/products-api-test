@@ -111,7 +111,7 @@ Si deseas ejecutar el proyecto localmente, debes:
 * **Node.js** - Entorno de ejecución
 * **Express.js** - Framework web para Node.js
 * **Swagger/OpenAPI** - Documentación de la API
-* *(Opcional: Añadir aquí cualquier otra tecnología clave, ej: TypeScript, Mongoose, TypeORM, etc.)*
+* **TypeScript** - Superset de JavaScript que añade tipado estático y mejora la mantenibilidad del código
 
 ***
 
