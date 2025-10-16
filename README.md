@@ -14,4 +14,15 @@ Laboratorio backend para explorar la creación, prueba y documentación de una A
 Este proyecto sirve como entorno de práctica para entender el ciclo completo de una API:
 - Definición de endpoints - Modelado de datos
 - Validación y pruebas
-- Documentación técnica No está pensado para producción, sino como espacio de aprendizaje y experimentación.
+- Documentación técnica 
+
+> 💡 **Nota:** No está pensado para producción, sino como espacio de aprendizaje y experimentación.
+
+## ⚙️ Ejecución del proyecto
+
+1. **Clona el repositorio**
+   ```bash
+   git clone https://github.com/tuusuario/products-api-test.git
+
+
+   
