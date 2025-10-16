@@ -1,0 +1,287 @@
+No, no hay notas sobre el desarrollo del Back
+
+--- Testing (jest y supertest) ---
+
+- Dependencias
+    * npm i -D supertest @types/supertest jest @types/jest ts-jest
+
+- Crear archivo de configuracion
+    * npx ts-jest config:init
+
+- Archivos de pruebas.
+Jest toma como prueba los archivos:
+    * Con la extension .test.js 
+    * Con la extension .spec.js 
+    * Archivos dentro de la carpeta __tests__
+
+- Creamos una prueba
+describe('Nuestro primer test', () => {
+    it('Checar que 1 +1 es 2', () => {
+        expect(1+1).toBe(2)
+    })
+})
+
+Nota: "describe" agrupa pruebas e "it" representa una prueba individual, por lo que podemos tener varios "it" en un mismo "describe".
+Nota: Se puede usar "it" o "test", es lo mismo.
+
+- Ejecutar la prueba
+Agregamos un script al package.json
+    *  "test": "jest"
+En la terminal 
+    * npm test o npm run test
+
+- Nombramiento:
+    - Se recomienda que cada archivo de prueba tenga el mismo nombre del archivo que se va a testear.
+        * server.ts -> Archivo a testear
+        * server.test.ts -> Archivo de prueba
+
+Nota: Una vez tu conexion sea exitosa, con la base de datos a testear, intenta borrar la mayor contidad de logs posibles en el codigo para evitar problemas (especialmento los que se encuentran en tu instancia de express)
+
+- Testear un endPoint (POST)
+
+import request from 'supertest' // Importar superTest
+import server from '../server' // Importar el server con todos los metodos http que quieres testear (al importar el server ya trae la URL base, por lo que solo usaremos los endPoints)
+
+describe('Get/API', () => {
+    it('Should send back a JSON response', async () => {
+        const response = await request(server).get('/api') // funcion asincrona -> indicar el server a testear -> indicar el metodo y el endpoint a testear
+
+        // Condiciones que se esperan una vez conectado (lo que queremos que suceda)
+        expect(response.status).toBe(200) // respuesta exitosa (status:200)
+        expect(response.headers['content-type']).toMatch(/json/) // que lo que se reciba sea un JSON
+        expect(response.body.msg).toBe("Desde API") // Que el cuerpo de la API sea el mensaje que indicamos en el server
+
+        //condiciones que no se esperan una vez conectado (lo que no queremos que suceda)
+        expect(response.status).not.toBe(404)
+        expect(response.body.msg).not.toBe("desde api")
+
+        // Mensajes en consola
+        console.log(response.text); // Respuesta como texto "key" : "value" -> No permite sintaxis de punto
+        console.log(response.body); // Respuesta como JSON key: value -> si permite la sintaxis de punto (usar esta)
+    })
+})
+
+Nota1: Todas las pruebas de un endPoint son asincronas
+Nota2: request es un metodo de superTest
+Nota3: Al crear archivos de prueba siempre es importante evaluar lo que debe suceder y lo que no debe suceder
+Nota4: Diferencias entre Tobe() y toMatch
+    * ToBe() // Comparacion estricta (===) y sirve para comparar valores primitivos (- número, cadena, booleano, undefined, null, etc.)
+    * ToMatch() // Busca coincidencias entre cadenas o cadena y expresion regular
+        * expect("JS es genial").toMatch("genial"); // con que tenga "genial" es suficiente (cadena literal)
+        * expect("JS es genial").toMatch(/genial/); // encuentra cualquier parte del texto que contenga "genial" (expresión regular)
+
+- Limpiar la base da datos al hacer pruebas con la linea de comandos
+
+Durante las pruebas, especialmente al realizar peticiones POST, es común que la base de datos acumule una gran cantidad de información innecesaria. 
+Por esta razón, es recomendable implementar un comando en la línea de comandos (CLI) que permita eliminar esos datos de prueba de manera rápida y controlada.
+
+En este caso, el script se encuentra en la ruta src/data/index.ts, dentro del cual se define la función clearDB(), encargada de limpiar la base de datos.
+
+import {exit} from 'node:process' // Importar 'exit' del módulo 'process' para finalizar la ejecución del programa
+import db from '../config/db' // instancia de la conexion de la base de datos
+
+const clearDB = async () => { // Asincrono porque no sabes cuando va a tardar en eliminar todos los datos
+    try {
+        await db.sync({force:true}) // Forzar sincronizacion (eliminar la informacion y volver a crear las tablas)
+        console.log("Datos borrados correctamente");
+        exit(0)
+    } catch (error) {
+        console.log(error);
+        exit(1)
+    }
+}
+
+El script ejecuta la función únicamente si el argumento recibido en la línea de comandos es --clear, lo que evita que la base de datos se borre de forma accidental.
+if(process.argv[2] === "--clear"){
+    clearDB()
+}
+
+Para integrar este script en la línea de comandos, se puede agregar al archivo package.json un nuevo comando dentro del apartado de scripts, por ejemplo:
+    - "pretest": "ts-node ./src/data --clear"
+
+El nombre del script puede variar, pero en este caso se utiliza la palabra reservada pretest, que indica que este comando se ejecutará antes de las pruebas.
+De esta manera, al ejecutar npm test, primero se ejecutará el script pretest y posteriormente el script principal de pruebas (test).
+Asimismo, existe la palabra reservada posttest, que permite ejecutar un script después de las pruebas.
+
+Nota1: La función exit(number) finaliza la ejecución del programa. El número 0 indica una finalización exitosa, mientras que 1 señala un error. Si se llama simplemente como exit(), se asume una finalización exitosa.
+Nota2: Es importante distinguir cuándo se trabaja con JavaScript y cuándo con TypeScript, ya que los scripts definidos en el package.json deben ejecutarse con node o ts-node, según corresponda.
+Npta3: La propiedad process.argv es un arreglo que contiene los argumentos que se envían al ejecutar un script desde la terminal. Por ejemplo, al ejecutar el comando
+"ts-node ./src/data --clear", Node interpreta y descompone las partes del comando en este arreglo:
+[
+  'D:\\React\\Curso_TS\\Practice_React_Course\\Admin Products\\nest_api_node_ts_server\\node_modules\\ts-node\\dist\\bin.js', // (ts-node)
+  'D:\\React\\Curso_TS\\Practice_React_Course\\Admin Products\\nest_api_node_ts_server\\src\\data', // (./src/data)
+  '--clear' // ( --clear) o (process.argv[2])
+]
+El primer elemento (process.argv[0]) corresponde a la ruta del ejecutor de Node o ts-node, 
+el segundo (process.argv[1]) al archivo que se está ejecutando, 
+y a partir del tercer elemento (process.argv[2] en adelante) se listan los argumentos personalizados que el usuario haya pasado al comando.
+
+- Code Coverage (cobertura de codigo)
+El Code Coverage es una métrica utilizada para medir la cantidad de código fuente que ha sido ejecutado o cubierto por un conjunto de pruebas.
+En otras palabras, indica qué porcentaje del código ha sido verificado mediante pruebas automatizadas.
+
+Una mayor cobertura generalmente implica que se han realizado pruebas más exhaustivas, lo cual es un indicador positivo de la calidad del software.
+
+Cobertura:
+    <60% - No es suficiente
+    60% - 80% - Puede mejorar
+    >=80% - Suficiente 
+    100% - Excelente (poco probable de lograr)
+
+Para poder ver la covertura de nuestras pruebas agregamos un nuevo script al package.json:
+    - "test:coverage": "npm run pretest && jest --detectOpenHandles --coverage",
+
+Su funcionamiento es similar al comando npm run test, ya que sigue el mismo flujo:
+primero ejecuta el comando pretest y posteriormente el comando de prueba (test).
+
+La diferencia es que aquí se especifica explícitamente la opción --coverage, que le indica a Jest que genere un informe de cobertura al finalizar la ejecución de las pruebas.
+
+    - % lines : Porcentage de lineas de codigo que se ejecutaron al menos una vez durante las pruebas
+    - % Uncoverad Lines : Lineas no ejecutadas 
+    - % Stmts (staments) : Lineas especificas testeados (por ejemplo, en un cath o condiciones, en donde, si sucede una no se ejecuta la otra. Testea la linea que no se ejecutan al suceder uno u otro evento)
+      Por ejemplo eventos de try y catch, donde rara vez se cae en catch, debido a validaciones mas istrictas como en la url y demas parametros protegidos. Este indicativo sirve para ver esas condiciones que pueden no ser tan necesarios y resulta mas favorables deshacerse de ellas.
+    - % Branch : Mide si todas las ramificaciones (if, switch) han sido evaludas tanto en verdadero como falso o todas las demas posibilidades.
+    - % Funcs: Mide que no tengas funciones que no se hayan llamdo al menos una vez.
+
+- Forzar las excepciones
+En casos muy especificos habra que testear incluso las excepciones, esa porcion de codigo que se ejecuta unicamente cuando algo va mal. Como los catch de un try-catch. 
+Es posible forzar estas excepciones para ver que el error se maneje tal y como se tiene previsto. Para esto, el los test del servidor:
+
+import server, {connectDB} from '../server' // Importamos la funcion a la cual le queremos testear la excepcion (el bloque catch)
+import db from '../config/db' // Importamos la base a la que nos vamos a conectar
+
+jest.mock('../config/db') // permite simular el módulo de conexión a la base de datos evitando conexiones reales durante la prueba.
+
+describe('Connect DB', () => {
+    it('should handle databse connection error', async () => {
+
+        jest.spyOn(db, 'authenticate') // Simulamos que el método authenticate de Sequelize lanza un error
+            .mockRejectedValueOnce(new Error ('Conexion fallida'))
+
+        // Espiamos las llamadas a console.log para verificar los mensajes de error 
+        const consoleSpy = jest.spyOn(console, 'log') 
+
+        // Ejecutamos la función a probar
+        await connectDB()
+
+        // Verificamos que el mensaje de error esperado haya sido impreso
+        expect(consoleSpy).toHaveBeenCalledWith(
+            expect.stringContaining('Hubo un error al conectar a la base de datos')
+        )
+    })
+})
+
+--- Documentar una API (con Swagger) ---
+ - Dependencias 
+    - npm i swagger-jsdoc swagger-ui-express (Dependencias)
+    - npm i -D @types/swagger-jsdoc @types/swagger-ui-express (Tipado, por eso solo es de desarrollo)
+
+- Archivo de configuracion (src/config/swagger.ts)
+Este archivo contiene la configuración principal de Swagger, donde se definen los metadatos de la API, las etiquetas (tags) y las rutas a documentar.
+
+import swaggerJSDoc from "swagger-jsdoc";
+
+const options: swaggerJSDoc.Options = {
+  swaggerDefinition: {
+    openapi: "3.0.2", // Versión de OpenAPI (ver documentación oficial)
+    info: {
+      title: "REST API Node.js / Express / TypeScript",
+      version: "1.0.0",
+      description: "Documentación de la API de productos",
+    },
+    tags: [
+      {
+        name: "Products",
+        description: "Operaciones relacionadas con productos",
+      },
+      // Ejemplo de más tags (si existieran otras rutas)
+      {
+        name: "Users",
+        description: "Operaciones relacionadas con usuarios",
+      },
+    ],
+  },
+  // Ubicación de los archivos que contienen las rutas documentadas
+  apis: ["./src/router/*.ts"],
+};
+
+// Instanciamos la configuración y la exportamos
+const swaggerSpec = swaggerJSDoc(options);
+export default swaggerSpec;
+
+Notas:
+- openapi: especifica la versión de OpenAPI usada (en este caso, 3.0.2).
+- info: contiene metadatos generales de la API (nombre, versión, descripción).
+- tags: agrupan los endpoints por categorías (por ejemplo: Products, Users).
+- apis: indica la ubicación de los archivos donde Swagger buscará las anotaciones JSDoc (comentarios de documentación sobre los endpoints).
+
+- Integracion con el servidor
+En el archivo del servidor se configura una ruta específica para acceder a la documentación a través del navegador.
+
+import swaggerSpec from "./config/swagger"; // Archivo de configuración
+import swaggerUi from "swagger-ui-express"; // Interfaz web para Swagger
+
+// Ruta para la documentación
+server.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+Notas: 
+- /docs: ruta pública donde se podrá visualizar la documentación (por ejemplo: http://localhost:4000/docs).
+- swaggerUi.serve: middleware que sirve los archivos estáticos necesarios para la interfaz de Swagger.
+- swaggerUi.setup(swaggerSpec): renderiza la documentación utilizando las especificaciones generadas en el archivo de configuración.
+
+- Usar swagger
+Swagger utiliza comentarios multilínea (/** ... */) dentro del código fuente para generar la documentación.
+Cada bloque de Swagger comienza con el decorador @swagger, seguido por una estructura jerárquica e indentada que describe el endpoint, sus parámetros y respuestas.
+
+En este proyecto, las anotaciones de Swagger se ubican directamente sobre cada método del archivo de rutas (router.ts), lo que facilita su mantenimiento y edición.
+
+El primer paso es definir un schema, que funciona de manera similar a un type o interface en TypeScript.
+El schema establece la estructura de los datos que se manejan en las respuestas o solicitudes.
+Esto permite mantener consistencia en toda la documentación, ya que varios endpoints pueden referirse al mismo esquema.
+
+En este caso se define un schema para Product, que se utiliza como base para los endpoints GET, GET by ID, POST, PUT y PATCH.
+El método DELETE no lo utiliza, ya que solo devuelve un mensaje de confirmación.
+
+Consulta el archivo router.ts, líneas 8 a 31, para ver el esquema definido.
+
+Con el eschema definido, ya podemos comenzar con la documentacion de cada endPoint.
+Cada endpoint documentado comparte una estructura común, aunque los detalles pueden variar según el método (GET, POST, PUT, etc.), pero, comparten algunos aspectos en comun:
+Nota: checar el swagger de PUT (swagger.ts - linea: 135) ya que es el swagger mejor documentado ya que muestra todos los elementos ue intervienen en la estructura del resto de endpoints.
+    - @swagger: Indica el inicio de la documentación ->  @swagger
+    - path: Define la ruta del endpoint -> /api/products/{id}: // En este caso, {id} representa el identificador único del producto (una variable)
+    - method:  Método HTTP utilizado -> put:
+    - summary / description: Describen la función del endpoint -> "Actualiza un producto"
+    - tags: Agrupan endpoints por categoría -> - Products
+    - parameters: Define los valores requeridos en la ruta o query -> - in: path, name: id
+    - requestBody: Estructura del cuerpo de la solicitud -> JSON con propiedades del producto
+    - responses: Define las posibles respuestas del servidor al realizar una peticion -> 200, 400, 404 (el statatus de una peticion exitosa, de una peticion erronea y de una peticion inexistente en este caso)
+
+Nota: - in: indica dónde se encuentra el parámetro en la URL del endpoint. en este caso ese - in es igual al /{id} pero, tambien puede ser un query, un header o una cookie.
+Nota: name: es el nombre exacto del parámetro en este caso {id} = id, pero no siempre es el caso
+Nota: 
+
+Tambien, puedes estilar la Ui de swagger. Es importante aclarar que se estila mediante la obtencion de identificadores de las etiquetas HTML (ID), por lo que si, puede llegar a ser algo pesado.
+
+import { SwaggerUiOptions } from 'swagger-ui-express' // Opciones de estilido 
+
+const swaggerUiOptions: SwaggerUiOptions = {
+    customSiteTitle: "colocar css aqui",
+    customfavIcon: "colocar css aqui", 
+    customCss: "colocar css aqui"
+}
+
+Nota: En el caso de querer usar elementos locales (imagenes, videos, svg , ect) desde tu proyecto local para el estilado tambien deberas de agregar esto a tu server.ts para habilitar el acceso a archivos estaticos.
+    - server.use('/public', express.static('src/public'));
+
+Para aplicar estos estos estilos, basta con exportarlos e importarlos y agregarlos a la ruta de la documentacion junto con las especificaciones de swagger.
+
+server.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOptions))
+
+--- Datos Relevantes ---
+* Algunas empresas prohiben borrar datos de sus bases, lo que se hace es un "Borrado Logico", es decir,
+cambiar el estado de la informacion entre visible y no visible, en lugar de usar el metodo destroy().
+
+* El "isolatedModules": true, no venia en el curso, lo agregue por recomendacion de Jest, si hay un error en el proyecto, comenzar por ahi.
+
+* Para construir los test, mas especificamentente en las parte de lo que se espera recibir, puedes apoyarte de herramientas como Postman, para ver los 
+status de cada peticion y en la seccion de headers ver el resto de elementos que acompañan a la respuesta.
