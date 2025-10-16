@@ -115,16 +115,9 @@ Si deseas ejecutar el proyecto localmente, debes:
 
 ***
 
-## 👤 Autor
+## Presencia en linea
+    *https://www.linkedin.com/in/ivercruzdev/*
 
-* **Tu Nombre o Alias** - [Tu Perfil de GitHub (ej. @Don-Ivan-117)]
-    *(Opcional: Enlace a tu Portafolio o LinkedIn)*
-
-***
-
-## 📜 Licencia
-
-Este proyecto está bajo la Licencia MIT. Consulta el archivo [LICENSE.md](LICENSE.md) para más detalles.
    
    
 
