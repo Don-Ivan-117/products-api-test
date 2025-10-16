@@ -53,7 +53,7 @@ Sigue estos pasos para poner el servidor en marcha:
 
 1.  **Clona el repositorio**
     ```bash
-    git clone [https://github.com/Don-Ivan-117/products-api-test.git](https://github.com/Don-Ivan-117/products-api-test.git)
+    git clone https://github.com/Don-Ivan-117/products-api-test.git
     cd products-api-test
     ```
 
